@@ -23,21 +23,27 @@ def prim(graph):
                 # record this edge in the tree
                 tree.add((weight, node, parent))
                 visited.add(node)
+                # add all the edges from this node to the frontier
+                if node != parent:
+                    tree.add((weight, node, parent))
                 for neighbor, w in graph[node]:
-                    heappush(frontier, (w, neighbor, node))    
-                    # compare with dijkstra:
-                    # heappush(frontier, (distance + weight, neighbor))                
-
+                    heappush(frontier, (w, neighbor, node))                
                 return prim_helper(visited, frontier, tree)
         
-    # pick first node as source arbitrarily
-    source = list(graph.keys())[0]
-    frontier = []
-    heappush(frontier, (0, source, source))
-    visited = set()  # store the visited nodes (don't need distance anymore)
-    tree = set()
-    prim_helper(visited, frontier, tree)
-    return tree
+    visited = set()
+    forest = [] # list of trees
+
+    # iterate over all nodes in the graph
+    for node in graph:
+        # if we haven't visited this node, start a new tree
+        if node not in visited:
+            frontier = []
+            tree = set()
+            heappush(frontier, (0, node, node))
+            prim_helper(visited, frontier, tree)
+            forest.append(tree)
+
+    return forest # return the list of trees
 
 def test_prim():    
     graph = {
@@ -81,8 +87,21 @@ def mst_from_points(points):
       a list of edges of the form (weight, node1, node2) indicating the minimum spanning
       tree connecting the cities in the input.
     """
-    ###TODO
-    pass
+    # create a graph where each point is a node, and the edge weight between
+    graph = {name: set() for name, x, y in points}
+
+    # add edges between each pair of points with the euclidean distance as the weight
+    for i in range(len(points)):
+        for j in range(i+1, len(points)):
+            p1 = points[i]
+            p2 = points[j]
+            weight = euclidean_distance(p1, p2)
+            graph[p1[0]].add((p2[0], weight))
+            graph[p2[0]].add((p1[0], weight))
+
+    # use prim's algorithm to find the minimum spanning tree
+    return prim(graph)[0]
+
 
 def euclidean_distance(p1, p2):
     return sqrt((p1[1] - p2[1])**2 + (p1[2] - p2[2])**2)
