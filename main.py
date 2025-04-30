@@ -87,7 +87,7 @@ def mst_from_points(points):
       a list of edges of the form (weight, node1, node2) indicating the minimum spanning
       tree connecting the cities in the input.
     """
-    # create a graph where each point is a node, and the edge weight between
+    # create a graph where each point is a node
     graph = {name: set() for name, x, y in points}
 
     # add edges between each pair of points with the euclidean distance as the weight
